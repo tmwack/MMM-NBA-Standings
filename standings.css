@@ -1,0 +1,38 @@
+.standings-container {
+	display: table;
+}
+
+.standings-container-row {
+	display: table-row;
+}
+
+.standings-container-cell {
+	display: table-cell;
+	padding: 5px;
+}
+
+.standings-team-header-row {
+}
+
+.standings-team-row {
+	text-align: left;
+}
+
+.standings-team-rank {
+}
+
+.standings-team-name {
+}
+
+.standings-team-gamesBack {
+	text-align: center;
+}
+
+.standings-team-lastTen {
+	text-align: center;	
+}
+
+tr.standings-team-row > td {
+	padding-left: 10px;
+	padding-right: 10px;
+}
