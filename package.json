@@ -1,0 +1,27 @@
+{
+  "name": "mmm-nba-standings",
+  "version": "0.0.1",
+  "description": "Magic Mirror module display NBA Standings.",
+  "main": "MMM-NBA-Standings.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tmwack/MMM-NBA-Standings.git"
+  },
+  "keywords": [
+    "MagicMirror",
+    "NBA",
+    "Standings",
+    "MMM",
+    "Magic",
+    "Mirror"
+  ],
+  "author": "Tyler Wack",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tmwack/MMM-NBA-Standings/issues"
+  },
+  "homepage": "https://github.com/tmwack/MMM-NBA-Standings#readme"
+}
