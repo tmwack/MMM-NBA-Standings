@@ -1,11 +1,8 @@
 {
   "name": "mmm-nba-standings",
-  "version": "0.0.1",
-  "description": "Magic Mirror module display NBA Standings.",
+  "version": "1.0.0",
+  "description": "Magic Mirror module displaying NBA Conference Standings.",
   "main": "MMM-NBA-Standings.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tmwack/MMM-NBA-Standings.git"
@@ -18,10 +15,18 @@
     "Magic",
     "Mirror"
   ],
-  "author": "Tyler Wack",
+  "author": {
+    "name": "Tyler Wack",
+    "email": "twack@twack.io"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tmwack/MMM-NBA-Standings/issues"
   },
-  "homepage": "https://github.com/tmwack/MMM-NBA-Standings#readme"
+  "homepage": "https://github.com/tmwack/MMM-NBA-Standings#readme",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "moment": "^2.18.1",
+    "request": "^2.81.0"
+  }
 }

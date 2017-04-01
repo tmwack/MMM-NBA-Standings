@@ -1,19 +1,32 @@
+/* global Module */
+
+/* Magic Mirror
+ * Module: MMM-NBA-Standings
+ *
+ * MIT Licensed.
+ */
+
 var request = require('request');
 var NodeHelper = require('node_helper');
 var _ = require('lodash');
 
+// Responsible for pulling NBA standings data from the API for configured module(s).
 module.exports = NodeHelper.create({
 	config: {
-		refreshTime: 5 * 60 * 1000, // 5 minutes
-		apiUrl: 'http://localhost:7878/nba/standings.json' // 'https://erikberg.com/nba/standings.json'
+		apiUrl: 'https://erikberg.com/nba/standings.json',
+		// erikberg.com API rate limits 3 requests per hour, 1 request per 20 minutes. 
+		// Pull every 21 minutes to stay on the rate limiter's good side.
+		refreshTime: 21 * 60 * 1000
 	},
 
 	refreshInterval: null,
 	nbaStandings: {},
 	
-	// Override start method.
+	// Initialize standings data, schedule data refresh interval.
 	start: function () {
 		console.log('Starting node helper for: ' + this.name);
+
+		this.fetchStandings();
 		this.scheduleRefreshInterval();
 	},
 
@@ -25,8 +38,6 @@ module.exports = NodeHelper.create({
 			self.fetchStandings();
 		},
 		this.config.refreshTime);
-
-		this.fetchStandings();
 	},
 
 	fetchStandings: function() {
@@ -51,6 +62,7 @@ module.exports = NodeHelper.create({
 		});
 	},
 
+	// Update our standings data and notify consumers with new data.
 	onFetchStandingsSuccess: function(nbaStandingsJSON) {
 		console.log('API call to fetch NBA Standings succeeded.');
 
@@ -59,6 +71,7 @@ module.exports = NodeHelper.create({
 		this.sendUpdateStandingsSocketNotification(this.nbaStandings);
 	},
 
+	// convert the API response into the module's NBA standings DTO.
 	convertNBAStandingsJSON: function(nbaStandingsJSON) {
 		var nbaStandingsDto = JSON.parse(nbaStandingsJSON);
 
@@ -85,6 +98,8 @@ module.exports = NodeHelper.create({
 		console.error('body: ', body);
 	},
 
+	// When new clients connect, trigger a standings data update notification.
+	// This sync notification is how the module bootstraps its standings data.
 	socketNotificationReceived: function(notification, payload) {
 		if(notification === 'SYNC_NEW_CLIENT') {
 			this.sendUpdateStandingsSocketNotification(this.nbaStandings);

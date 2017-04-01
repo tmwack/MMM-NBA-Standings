@@ -6,17 +6,18 @@
  * MIT Licensed.
  */
 
+// Displays NBA standings data for a conference.
 Module.register('MMM-NBA-Standings', {
     defaults: {
-        // API allows 6 requests within a 4 hour window. 6 req / 4hr = 1 req / 20 min. 
-        // Added a minute to ensure we stay on the rate limiter's good side.
-        refreshIntervalInMinutes: 21,
-
         // The conference standings to display. Values: ['EAST', 'WEST'].
         conference: 'EAST'
     },
 
     requiresVersion: "2.1.0",
+
+    getScripts: function() {
+        return ["moment.js"];
+    },
 
     getStyles: function() {
         return ['standings.css'];
@@ -41,7 +42,7 @@ Module.register('MMM-NBA-Standings', {
         this.sendSocketNotification('SYNC_NEW_CLIENT', {});
     },
 
-    // 
+    // Handles notifications from the node_helper.
     socketNotificationReceived: function(notification, payload) {
         if(notification === 'SET_NBA_STANDINGS') {
             this.nbaConferenceStandings = this.parseSetStandingsPayload(payload);
@@ -49,6 +50,7 @@ Module.register('MMM-NBA-Standings', {
         }
     },
 
+    // Parse NBA Standings data pushed from the node_helper. 
     parseSetStandingsPayload: function(nbaStandings) {
         var conferenceName;
         var conferenceStandings;
@@ -65,8 +67,7 @@ Module.register('MMM-NBA-Standings', {
             }
         }
 
-        var lastUpdated = nbaStandings.lastUpdated.replace('T00:', ' '); // naive ISO-8601 formatting.
-        lastUpdated = lastUpdated.replace('-04:00', ''); // super stupid way to strip the offset.
+        var lastUpdated = moment(nbaStandings.lastUpdated);
 
         return {
             conferenceName: conferenceName,
@@ -77,8 +78,6 @@ Module.register('MMM-NBA-Standings', {
 
     // Override dom generator.
     getDom: function() {
-        Log.info(this.nbaConferenceStandings);
-
         var wrapper = null;
         if(this.nbaConferenceStandings) {
             wrapper = this.getNBAStandingsDom(this.nbaConferenceStandings);
@@ -89,6 +88,7 @@ Module.register('MMM-NBA-Standings', {
         return wrapper;
     },
 
+    // Create the module DOM from NBA conference standings data.
     getNBAStandingsDom: function(nbaConferenceStandings) {
         var wrapper = document.createElement('div');
         wrapper.className = 'standings-container';
@@ -105,30 +105,20 @@ Module.register('MMM-NBA-Standings', {
         return wrapper;
     },
 
+    // Create the header row, displaying the name of the conference.
     getConferenceNameRowDom: function(conferenceName) {
         var conferenceNameRow = document.createElement('div');
         conferenceNameRow.className = 'standings-container-row';
 
         var conferenceNameCell = document.createElement('div');
-        conferenceNameCell.className = 'standings-container-cell medium';
+        conferenceNameCell.className = 'standings-container-header medium';
         conferenceNameCell.innerHTML = conferenceName;
         conferenceNameRow.appendChild(conferenceNameCell);
 
         return conferenceNameRow;
     },
 
-    getStandingsLastUpdatedRowDom: function(lastUpdated) {
-        var lastUpdatedRow = document.createElement('div');
-        lastUpdatedRow.className = 'standings-container-row';
-
-        var lastUpdatedCell = document.createElement('div');
-        lastUpdatedCell.className = 'standings-container-cell xsmall light';
-        lastUpdatedCell.innerHTML = 'Last updated: ' + lastUpdated;
-        lastUpdatedRow.appendChild(lastUpdatedCell);
-
-        return lastUpdatedRow;
-    },
-
+    // Create the team standings row, displaying conference standings as a table.
     getTeamStandingsRowDom: function(teamStandings) {    
         var standingsRow = document.createElement('div');
         standingsRow.className = 'standings-container-row';
@@ -143,6 +133,7 @@ Module.register('MMM-NBA-Standings', {
         return standingsRow;
     },
 
+    // Create the table containing conference standings, one team per row.
     getTeamStandingsTableDom: function(teamStandings) {
         var standingsTable = document.createElement('table');
 
@@ -159,6 +150,7 @@ Module.register('MMM-NBA-Standings', {
         return standingsTable;
     },
 
+    // Create the header row for the team standings table, describing each column.
     getTeamStandingHeaderRowDom: function() {
         var teamStandingHeaderRow = document.createElement('tr');
         teamStandingHeaderRow.className = 'standings-team-header-row';
@@ -178,6 +170,7 @@ Module.register('MMM-NBA-Standings', {
         return teamStandingHeaderRow;
     },
 
+    // Create a header cell for the team standings table header.
     getTeamStandingHeaderCellDom: function(columnName) {
         var teamStandingHeaderCell = document.createElement('th');
         teamStandingHeaderCell.className = 'small';
@@ -186,6 +179,7 @@ Module.register('MMM-NBA-Standings', {
         return teamStandingHeaderCell;
     },
 
+    // Create a team's row within the standings table.
     getTeamStandingRowDom: function(teamStanding) {
         var teamStandingRow = document.createElement("tr");
         teamStandingRow.className = 'standings-team-row';
@@ -213,6 +207,20 @@ Module.register('MMM-NBA-Standings', {
         return teamStandingRow;
     },
 
+    // Create the footer row, displaying the timestamp of the current standings data.
+    getStandingsLastUpdatedRowDom: function(lastUpdated) {
+        var lastUpdatedRow = document.createElement('div');
+        lastUpdatedRow.className = 'standings-container-row';
+
+        var lastUpdatedCell = document.createElement('div');
+        lastUpdatedCell.className = 'standings-container-header xsmall light';
+        lastUpdatedCell.innerHTML = 'Last updated: ' + lastUpdated.format('HH:mm DD-MM-YYYY');
+        lastUpdatedRow.appendChild(lastUpdatedCell);
+
+        return lastUpdatedRow;
+    },
+
+    // Create a DOM with no data, informing the user.
     getNoStandingsDom: function() {
         Log.info('no standings data, bailing early');
 
